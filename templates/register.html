@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <h1 class="login-title">Join Chatterboxx</h1>
+        <p class="login-subtitle">Create your account to start chatting.</p>
+
+        {% if error %}
+        <div class="error-msg">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label">Display Name (Nickname)</label>
+                <input type="text" name="display_name" class="form-input" placeholder="e.g. CoolGuy123" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Gender</label>
+                <select name="gender" class="form-input" style="background: var(--bg-item);">
+                    <option value="neutral">Select Gender (for Avatar)</option>
+                    <option value="male">👨 Male</option>
+                    <option value="female">👩 Female</option>
+                    <option value="neutral">🧑 Non-binary / Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Username (Login ID)</label>
+                <input type="text" name="username" class="form-input" placeholder="Desired username" required>
+            </div>
+
+            <button type="submit" class="btn-primary">Sign Up</button>
+        </form>
+
+        <div style="margin-top: 1.5rem; font-size: 0.9rem;">
+            <a href="{{ url_for('login') }}" style="color: var(--primary); text-decoration: none;">Already have an
+                account? Login</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

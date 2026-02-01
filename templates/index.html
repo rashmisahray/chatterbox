@@ -15,6 +15,10 @@
                 </div>
                 <a href="{{ url_for('logout') }}" class="logout-link"><i class="ph ph-sign-out"></i></a>
             </div>
+            <button id="create-group-btn" class="btn-icon" title="Create Group"
+                style="background: transparent; border: 1px solid var(--border); color: var(--text-muted); border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-top: 1rem; width: 100%;">
+                <i class="ph ph-plus" style="margin-right: 0.5rem;"></i> New Group
+            </button>
         </div>
 
         <div class="sidebar-search">
@@ -78,4 +82,47 @@
         </button>
     </div>
 </template>
+
+<!-- Group Creation Modal -->
+<dialog id="group-modal"
+    style="background: var(--bg-card); color: white; border: 1px solid var(--border); border-radius: 1rem; padding: 2rem; backdrop-filter: blur(20px); width: 400px; margin: auto;">
+    <h2 style="margin-bottom: 1rem;">Create New Group</h2>
+    <input type="text" id="new-group-name" placeholder="Group Name" class="form-input" style="margin-bottom: 1rem;">
+
+    <label
+        style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">Participants:</label>
+    <div id="user-selection-list"
+        style="max-height: 200px; overflow-y: auto; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 0.5rem; padding: 0.5rem;">
+        <!-- Checkboxes injected by JS -->
+    </div>
+
+    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <button id="cancel-group"
+            style="padding: 0.5rem 1rem; background: transparent; border: 1px solid var(--border); color: white; border-radius: 0.5rem; cursor: pointer;">Cancel</button>
+        <button id="confirm-group" class="btn-primary" style="width: auto;">Create</button>
+    </div>
+</dialog>
+
+<!-- Profile Settings Modal -->
+<dialog id="profile-modal"
+    style="background: var(--bg-card); color: white; border: 1px solid var(--border); border-radius: 1rem; padding: 2rem; backdrop-filter: blur(20px); width: 400px; margin: auto;">
+    <h2 style="margin-bottom: 1rem;">Edit Profile</h2>
+
+    <label class="form-label" style="display:block; margin-bottom: 0.5rem; color: var(--text-muted);">Nickname</label>
+    <input type="text" id="edit-profile-name" class="form-input" style="margin-bottom: 1rem;">
+
+    <label class="form-label" style="display:block; margin-bottom: 0.5rem; color: var(--text-muted);">Gender (Updates
+        Avatar)</label>
+    <select id="edit-profile-gender" class="form-input" style="background: var(--bg-item); margin-bottom: 1.5rem;">
+        <option value="">No Change</option>
+        <option value="male">👨 Male</option>
+        <option value="female">👩 Female</option>
+    </select>
+
+    <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+        <button id="cancel-profile"
+            style="padding: 0.5rem 1rem; background: transparent; border: 1px solid var(--border); color: white; border-radius: 0.5rem; cursor: pointer;">Cancel</button>
+        <button id="confirm-profile" class="btn-primary" style="width: auto;">Save</button>
+    </div>
+</dialog>
 {% endblock %}
