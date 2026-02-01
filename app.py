@@ -1,9 +1,11 @@
 import os
 from datetime import datetime
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_synthetic_key'
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 # --- In-Memory Data Store & Synthetic Data ---
 
@@ -107,19 +109,16 @@ def api_init():
     # Build Sidebar List
     sidebar_items = []
     
-    # 1. Private Chats (Find all chats where current user is a participant)
-    # Ideally, we should order by last message, but for now just list them
     for chat_id, chat in CHATS.items():
         if current_user_id in chat['participants']:
             item = {
                 'chat_id': chat_id,
                 'type': chat['type'],
-                'unread': 0, # Placeholder
+                'unread': 0, 
                 'last_message': chat['messages'][-1]['content'] if chat['messages'] else ""
             }
             
             if chat['type'] == 'private':
-                # Find the other user
                 other_id = next((pid for pid in chat['participants'] if pid != current_user_id), None)
                 if other_id and other_id in USERS:
                     other_user = USERS[other_id]
@@ -131,16 +130,11 @@ def api_init():
                     item['avatar'] = ""
                     item['status'] = "offline"
             else:
-                # Group
                 item['name'] = chat.get('name', 'Group Chat')
                 item['avatar'] = chat.get('avatar', '')
-                item['status'] = '' # specific status for group not needed usually
+                item['status'] = '' 
             
             sidebar_items.append(item)
-            
-    # Also add users we don't have a chat with yet? 
-    # For simplicity, let's just show existing chats + all other users as potential 1-on-1s if not exists
-    # (Skipping "new chat" creation logic for simplicity, assuming we just chat with pre-seeded users)
 
     return jsonify({
         'user': USERS[current_user_id],
@@ -159,7 +153,6 @@ def get_chat_history(chat_id):
     if session['user_id'] not in chat['participants']:
         return jsonify({'error': 'Access denied'}), 403
         
-    # Enrich messages with sender info
     enriched_messages = []
     for msg in chat['messages']:
         sender = USERS.get(msg['sender_id'])
@@ -172,7 +165,6 @@ def get_chat_history(chat_id):
             'is_me': msg['sender_id'] == session['user_id']
         })
         
-    # Get Chat Info (Header)
     chat_info = {
         'id': chat['id'],
         'type': chat['type'],
@@ -193,42 +185,43 @@ def get_chat_history(chat_id):
         'messages': enriched_messages
     })
 
-@app.route('/api/chat/<chat_id>', methods=['POST'])
-def send_message(chat_id):
-    if 'user_id' not in session:
-        return jsonify({'error': 'Unauthorized'}), 401
-        
-    data = request.json
-    content = data.get('content')
+# --- Socket IO Events ---
+
+@socketio.on('join')
+def on_join(data):
+    room = data['room']
+    join_room(room)
+    # print(f"User joined room: {room}")
+
+@socketio.on('send_message')
+def on_send_message(data):
+    # data: { 'chat_id': '...', 'content': '...', 'sender_id': '...' }
+    chat_id = data['chat_id']
+    content = data['content']
+    sender_id = data['sender_id']
     
-    if not content:
-        return jsonify({'error': 'Empty message'}), 400
-        
     chat = CHATS.get(chat_id)
-    if not chat or session['user_id'] not in chat['participants']:
-        return jsonify({'error': 'Chat not found or denied'}), 404
-        
-    new_msg = {
-        'sender_id': session['user_id'],
-        'content': content,
-        'timestamp': datetime.now().strftime("%I:%M %p")
-    }
-    
-    chat['messages'].append(new_msg)
-    
-    # Return the enriched message so frontend can append it instantly
-    sender = USERS[session['user_id']]
-    return jsonify({
-        'status': 'success',
-        'message': {
-            'sender_id': session['user_id'],
-            'sender_name': sender['name'],
-            'avatar': sender['avatar'],
+    if chat:
+        timestamp = datetime.now().strftime("%I:%M %p")
+        new_msg = {
+            'sender_id': sender_id,
             'content': content,
-            'timestamp': new_msg['timestamp'],
-            'is_me': True
+            'timestamp': timestamp
         }
-    })
+        chat['messages'].append(new_msg)
+        
+        # Prepare message for broadcast
+        sender = USERS.get(sender_id)
+        broadcast_msg = {
+            'sender_id': sender_id,
+            'sender_name': sender['name'] if sender else 'Unknown',
+            'avatar': sender['avatar'] if sender else '',
+            'content': content,
+            'timestamp': timestamp,
+            'chat_id': chat_id 
+        }
+        
+        emit('receive_message', broadcast_msg, room=chat_id)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)
