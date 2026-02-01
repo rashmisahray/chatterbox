@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 services:
   - type: web
     name: chatterboxx
@@ -7,3 +8,14 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.10.0
+=======
+services:
+  - type: web
+    name: chatterboxx
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.0
+>>>>>>> a5f44470f7d8ecc3aba343e02fbead7f469cc786
