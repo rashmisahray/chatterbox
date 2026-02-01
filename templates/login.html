@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <h1 class="login-title">Chatterboxx</h1>
+        <p class="login-subtitle">Welcome back! Please login to your account.</p>
+
+        {% if error %}
+        <div class="error-msg">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-input" placeholder="e.g. Alice, Bob" required>
+            </div>
+
+            <button type="submit" class="btn-primary">Login</button>
+        </form>
+
+        <div style="margin-top: 2rem; font-size: 0.8rem; color: #64748b;">
+            <p>Demo Accounts:</p>
+            <div style="display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem;">
+                <span class="status-dot online"></span> Alice
+                <span class="status-dot away"></span> Bob
+                <span class="status-dot busy"></span> Charlie
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

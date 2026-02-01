@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div class="user-profile">
+                <img src="{{ current_user.avatar }}" alt="User" class="user-avatar">
+                <div class="user-info">
+                    <h3>{{ current_user.name }}</h3>
+                    <div class="user-status">
+                        <span class="status-dot {{ current_user.status }}"></span> {{ current_user.status | title }}
+                    </div>
+                </div>
+                <a href="{{ url_for('logout') }}" class="logout-link"><i class="ph ph-sign-out"></i></a>
+            </div>
+        </div>
+
+        <div class="sidebar-search">
+            <input type="text" class="search-input" placeholder="Search chats...">
+        </div>
+
+        <div class="chat-list" id="chat-list">
+            <!-- Chat items will be populated by JS -->
+            <div class="empty-state" style="height: 100px;">
+                <i class="ph ph-spinner-gap ph-spin"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-area" id="chat-area">
+        <div class="empty-state">
+            <i class="ph ph-chat-circle-text"></i>
+            <h3>Select a conversation</h3>
+            <p>Start chatting with your friends and groups</p>
+        </div>
+    </div>
+</div>
+
+<!-- Template for Chat Window (hidden, used by JS) -->
+<template id="chat-window-template">
+    <div class="chat-header">
+        <div class="chat-header-user">
+            <img src="" alt="" class="user-avatar" id="header-avatar">
+            <div>
+                <h3 id="header-name"></h3>
+                <span class="user-status" id="header-status"></span>
+            </div>
+        </div>
+        <div class="chat-actions">
+            <!-- Future actions: call, video, info -->
+            <i class="ph ph-dots-three-circle"
+                style="font-size: 1.5rem; color: var(--text-muted); cursor: pointer;"></i>
+        </div>
+    </div>
+
+    <div class="messages-container" id="messages-container">
+        <!-- Messages go here -->
+    </div>
+
+    <div class="chat-input-area">
+        <div class="input-wrapper">
+            <i class="ph ph-plus" style="color: var(--text-muted); cursor: pointer;"></i>
+            <input type="text" id="message-input" placeholder="Type a message...">
+            <i class="ph ph-smiley" style="color: var(--text-muted); cursor: pointer;"></i>
+        </div>
+        <!-- Using a separate send button outside or handling Enter key. 
+             But design shows "Send" button block usually. 
+             Let's put a send button next to input if needed, or inside -->
+    </div>
+    <!-- Actually, let's append a Send button programmatically or just rely on Enter.
+         The provided image showed a "Send" button. Let's add it. -->
+    <div style="position: absolute; bottom: 1.5rem; right: 1.5rem; height: 50px; display: flex; align-items: center;">
+        <button class="send-btn" id="send-btn">
+            <i class="ph ph-paper-plane-right" style="font-size: 1.2rem;"></i>
+        </button>
+    </div>
+</template>
+{% endblock %}
